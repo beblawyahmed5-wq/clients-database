@@ -1,0 +1,35 @@
+name: Daily Clients Update
+
+on:
+  schedule:
+    - cron: "0 9 * * *"   # يشتغل يوميًا الساعة 9 UTC = 11 صباحًا مصر
+  workflow_dispatch:       # تقدر تشغله يدوي كمان من GitHub
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Run update script
+      run: |
+        python update_clients.py
+
+    - name: Commit and push changes
+      run: |
+        git config --local user.name "github-actions"
+        git config --local user.email "actions@github.com"
+        git add Clients_Updated.xlsx
+        git commit -m "Auto-update clients $(date +'%Y-%m-%d %H:%M')"
+        git push
